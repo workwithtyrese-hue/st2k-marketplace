@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#000">
+<meta name="description" content="THE ST2K MARKETPLACE — Something to discover.">
+<title>ST2K — Something to discover.</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:Inter,Arial,Helvetica,sans-serif;background:#fff;color:#111;line-height:1.5}
+button,input,select,textarea{font:inherit}button{cursor:pointer}a{color:inherit;text-decoration:none}
+.topbar{background:#000;color:#fff;height:36px;display:flex;align-items:center;overflow:hidden;white-space:nowrap;font-size:12px;letter-spacing:.08em;text-transform:uppercase}
+.ticker{display:flex;gap:60px;animation:ticker 22s linear infinite}
+@keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+header{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.96);backdrop-filter:blur(12px);border-bottom:1px solid #e5e5e5}
+.nav{max-width:1400px;height:78px;margin:auto;padding:0 28px;display:flex;align-items:center;gap:28px}
+.logo{font-size:24px;font-weight:900;letter-spacing:-.06em;white-space:nowrap}.logo span{font-weight:400}
+.navlinks{display:flex;gap:25px;margin-left:25px;font-size:13px;font-weight:600}.navlinks a{position:relative}
+.navlinks a:after{content:"";position:absolute;left:0;bottom:-7px;width:0;height:1px;background:#000;transition:.25s}.navlinks a:hover:after{width:100%}
+.search{margin-left:auto;width:min(330px,30vw);position:relative}.search input{width:100%;height:42px;border:1px solid #d8d8d8;border-radius:2px;padding:0 42px 0 15px;outline:none;background:#fafafa}.search input:focus{border-color:#000;background:#fff}
+.search button{position:absolute;right:0;top:0;width:42px;height:42px;border:0;background:none}
+.actions{display:flex;align-items:center;gap:8px}.iconbtn{height:40px;min-width:40px;border:1px solid #ddd;background:#fff;display:flex;align-items:center;justify-content:center;transition:.2s}.iconbtn:hover{background:#000;color:#fff;border-color:#000}
+.sellbtn{height:40px;padding:0 17px;border:1px solid #000;background:#000;color:#fff;font-size:12px;font-weight:700;text-transform:uppercase}.menuBtn{display:none;border:0;background:none;font-size:24px}
+.hero{min-height:650px;display:grid;grid-template-columns:1.15fr .85fr;border-bottom:1px solid #ddd}.heroText{padding:90px 7vw;display:flex;flex-direction:column;justify-content:center}
+.eyebrow{font-size:11px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;margin-bottom:24px}.hero h1{font-size:clamp(54px,7vw,108px);line-height:.88;letter-spacing:-.075em}.hero h1 span{display:block;font-weight:400}
+.heroDescription{max-width:520px;margin-top:32px;color:#666;font-size:16px}.heroButtons{display:flex;gap:10px;margin-top:34px}.primary,.secondary{padding:14px 24px;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.08em}.primary{background:#000;color:#fff;border:1px solid #000}.secondary{background:#fff;color:#000;border:1px solid #000}.primary:hover{background:#222}.secondary:hover{background:#000;color:#fff}
+.heroVisual{position:relative;min-height:650px;background:#f2f2f2;overflow:hidden;display:flex;align-items:center;justify-content:center}.heroVisual:before{content:"ST2K";position:absolute;font-size:clamp(130px,18vw,300px);font-weight:900;letter-spacing:-.1em;color:#e4e4e4;transform:rotate(-8deg)}
+.heroCard{position:relative;z-index:2;width:65%;aspect-ratio:4/5;background:#fff;border:1px solid #d5d5d5;box-shadow:0 25px 70px rgba(0,0,0,.12);display:flex;align-items:flex-end;padding:28px;animation:float 5s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0) rotate(1deg)}50%{transform:translateY(-12px) rotate(-1deg)}}.heroCardContent{width:100%}.heroCardNumber{font-size:12px;color:#777;margin-bottom:8px}.heroCardTitle{font-size:32px;line-height:1;font-weight:800;letter-spacing:-.04em}.heroCardLine{height:1px;background:#111;margin-top:20px}
+.utility{border-bottom:1px solid #ddd;display:flex;justify-content:center}.utilityInner{width:100%;max-width:1400px;padding:13px 28px;display:flex;justify-content:space-between;align-items:center;font-size:12px}.utilityGroup{display:flex;gap:20px;align-items:center}.utility select{border:0;background:#fff;outline:none;font-size:12px;font-weight:600}
+.section{max-width:1400px;margin:auto;padding:90px 28px}.sectionHead{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:35px;gap:20px}.sectionEyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.15em;font-weight:800;margin-bottom:9px}.sectionTitle{font-size:clamp(34px,4vw,58px);line-height:.95;letter-spacing:-.06em}.viewAll{font-size:12px;font-weight:800;text-transform:uppercase;border-bottom:1px solid #000;padding-bottom:4px}
+.categories{display:flex;gap:8px;overflow-x:auto;padding-bottom:8px}.categories::-webkit-scrollbar{display:none}.category{flex:0 0 auto;border:1px solid #d7d7d7;background:#fff;padding:11px 18px;font-size:12px;font-weight:700;transition:.2s}.category:hover,.category.active{background:#000;color:#fff;border-color:#000}
+.discovery{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.discoveryCard{min-height:270px;border:1px solid #ddd;padding:28px;position:relative;overflow:hidden;background:#fff;transition:.3s}.discoveryCard:hover{transform:translateY(-5px);border-color:#000}.discoveryCard h3{font-size:25px;letter-spacing:-.04em;margin-top:50px}.discoveryCard p{color:#777;font-size:13px;margin-top:10px}.discoveryNumber{font-size:11px;color:#999}.discoveryArrow{position:absolute;right:25px;bottom:22px;font-size:20px}
+.marketHeader{border-top:1px solid #ddd;padding-top:90px}.filters{display:flex;gap:8px;align-items:center}.filters select{height:38px;border:1px solid #ddd;background:#fff;padding:0 12px;font-size:12px}
+.products{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}.product{border:1px solid #dedede;background:#fff;transition:.3s;position:relative}.product:hover{transform:translateY(-5px);border-color:#000}.productImage{aspect-ratio:1/1;background:#f1f1f1;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;cursor:pointer}.productImage img{width:100%;height:100%;object-fit:cover;display:block}.productPlaceholder{font-size:42px;font-weight:900;letter-spacing:-.08em;color:#ddd}
+.favorite{position:absolute;right:12px;top:12px;width:34px;height:34px;border:1px solid #ddd;background:#fff;z-index:2}.favorite.saved{background:#000;color:#fff;border-color:#000}.productInfo{padding:18px;cursor:pointer}.productType{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.12em;color:#777}.productName{font-size:17px;font-weight:750;margin-top:7px;letter-spacing:-.025em}.productSeller{margin-top:6px;font-size:11px;color:#777}.productBottom{display:flex;justify-content:space-between;align-items:center;margin-top:16px}.productPrice{font-size:15px;font-weight:800}.productLocation{font-size:10px;color:#777}.empty{grid-column:1/-1;padding:80px 20px;text-align:center;border:1px dashed #ccc;color:#777}.empty strong{display:block;color:#111;font-size:22px;margin-bottom:8px}
+.split{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid #ddd;border-bottom:1px solid #ddd}.splitBlock{min-height:420px;padding:60px;display:flex;flex-direction:column;justify-content:space-between}.splitBlock+.splitBlock{border-left:1px solid #ddd}.splitBlock h2{font-size:clamp(40px,5vw,70px);letter-spacing:-.07em;line-height:.9}.splitBlock p{max-width:430px;color:#666}
+.sellerCta{background:#000;color:#fff;padding:80px 7vw;display:flex;justify-content:space-between;align-items:center;gap:40px}.sellerCta h2{font-size:clamp(42px,6vw,80px);line-height:.9;letter-spacing:-.07em;max-width:750px}.sellerCta p{margin-top:18px;color:#aaa;max-width:560px}.whiteBtn{background:#fff;color:#000;border:0;padding:16px 25px;font-size:12px;font-weight:800;text-transform:uppercase}
+footer{background:#111;color:#fff;padding:65px 28px 25px}.footerGrid{max-width:1400px;margin:auto;display:grid;grid-template-columns:2fr repeat(3,1fr);gap:50px;padding-bottom:60px}.footerBrand{font-size:30px;font-weight:900;letter-spacing:-.06em}.footerText{color:#888;max-width:330px;margin-top:15px;font-size:13px}.footerCol h4{font-size:11px;letter-spacing:.13em;text-transform:uppercase;margin-bottom:17px}.footerCol a{display:block;color:#aaa;font-size:13px;margin:9px 0}.footerCol a:hover{color:#fff}.footerBottom{max-width:1400px;margin:auto;border-top:1px solid #333;padding-top:20px;display:flex;justify-content:space-between;color:#666;font-size:11px}
+.modal{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;padding:20px}.modal.show{display:flex}.modalBox{background:#fff;width:min(600px,100%);max-height:90vh;overflow:auto;padding:35px;position:relative}.close{position:absolute;right:18px;top:18px;border:0;background:none;font-size:22px}.modalBox h2{font-size:34px;letter-spacing:-.05em;margin-bottom:8px}.modalBox p{color:#777;font-size:13px;margin-bottom:25px}
+.formGroup{margin-bottom:15px}.formGroup label{display:block;font-size:10px;text-transform:uppercase;font-weight:800;letter-spacing:.1em;margin-bottom:7px}.formGroup input,.formGroup textarea,.formGroup select{width:100%;border:1px solid #ccc;padding:13px;outline:none;background:#fff}.formGroup input:focus,.formGroup textarea:focus,.formGroup select:focus{border-color:#000}
+.status{font-size:12px;margin:10px 0;min-height:18px}.messageToolbar{display:flex;gap:8px;align-items:center;margin-bottom:18px}.messageToolbar .secondary{padding:10px 14px}.messageList{display:grid;gap:0;border-top:1px solid #ddd}.conversation{display:grid;grid-template-columns:44px 1fr auto;gap:12px;align-items:center;padding:15px 0;border-bottom:1px solid #ddd;cursor:pointer}.conversation:hover{background:#fafafa}.conversationAvatar{width:44px;height:44px;background:#000;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800}.conversationName{font-weight:800;font-size:14px}.conversationPreview{font-size:12px;color:#777;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:430px}.conversationMeta{font-size:10px;color:#888;text-align:right}.conversationListing{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#555;margin-top:5px}.emptyInbox{padding:45px 10px;text-align:center;border:1px solid #ddd;color:#777}.threadHeader{display:flex;align-items:center;gap:12px;border-bottom:1px solid #ddd;padding-bottom:15px;margin-bottom:15px}.threadBack{border:1px solid #ddd;background:#fff;padding:9px 12px;font-size:11px;font-weight:800;text-transform:uppercase}.threadIdentity{display:flex;align-items:center;gap:10px;min-width:0}.threadAvatar{width:38px;height:38px;background:#000;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800}.threadName{font-weight:800}.threadListing{font-size:10px;color:#777;margin-top:3px}.threadMessages{height:380px;overflow:auto;border:1px solid #ddd;background:#fafafa;padding:16px;display:flex;flex-direction:column;gap:9px}.bubble{max-width:78%;padding:10px 12px;border:1px solid #ddd;background:#fff;font-size:13px;line-height:1.45}.bubble.mine{align-self:flex-end;background:#000;color:#fff;border-color:#000}.bubbleTime{display:block;font-size:9px;opacity:.6;margin-top:5px}.threadComposer{display:flex;gap:8px;margin-top:10px}.threadComposer textarea{flex:1;border:1px solid #ccc;padding:12px;resize:none;min-height:48px}.threadComposer button{min-width:90px}.inboxBadge{display:none;min-width:16px;height:16px;padding:0 4px;border-radius:20px;background:#000;color:#fff;font-size:9px;align-items:center;justify-content:center;margin-left:-8px;margin-top:-25px}.inboxBadge.show{display:flex}@media(max-width:700px){.conversationPreview{max-width:210px}.threadMessages{height:330px}.bubble{max-width:88%}.threadComposer{flex-direction:column}.threadComposer button{width:100%}}
+.status.error{color:#b00020}.status.success{color:#087443}.status.info{color:#555}.hidden{display:none!important}
+/* ST2K FINAL LAUNCH POLISH */
+.conversation{grid-template-columns:44px 1fr auto 34px}.conversationDelete{width:32px;height:32px;border:1px solid #ddd;background:#fff;font-size:15px}.conversationDelete:hover{background:#000;color:#fff;border-color:#000}.promotionGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.promotionCard{border:1px solid #ddd;padding:20px}.promotionCard strong{font-size:22px;display:block}.promotionCard p{font-size:12px;color:#777;margin:7px 0 15px}.ecoBox{border:1px solid #111;padding:18px;background:#fafafa;margin:15px 0}.ecoNumber{font-size:22px;font-weight:900;letter-spacing:.02em}.viewer{position:fixed;inset:0;background:rgba(0,0,0,.96);z-index:300;display:none;align-items:center;justify-content:center}.viewer.show{display:flex}.viewer img{max-width:92vw;max-height:84vh;object-fit:contain}.viewerClose,.viewerPrev,.viewerNext{position:absolute;border:1px solid rgba(255,255,255,.35);background:rgba(0,0,0,.45);color:#fff;width:44px;height:44px;font-size:24px}.viewerClose{right:18px;top:18px}.viewerPrev{left:18px;top:50%;transform:translateY(-50%)}.viewerNext{right:18px;top:50%;transform:translateY(-50%)}.viewerCount{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);color:#fff;font-size:12px;letter-spacing:.12em}.detailGallery img{cursor:zoom-in}.finalPath{border-top:1px solid #ddd;padding:90px 28px;max-width:1400px;margin:auto}.pathGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.pathCard{border:1px solid #ddd;padding:30px;min-height:220px}.pathCard b{font-size:12px;letter-spacing:.12em}.pathCard h3{font-size:34px;letter-spacing:-.05em;margin-top:35px}.pathCard p{font-size:13px;color:#666;margin-top:10px}.moneyNote{font-size:11px;color:#777;margin-top:10px}@media(max-width:700px){.conversation{grid-template-columns:38px 1fr 30px}.conversationMeta{display:none}.conversationDelete{width:30px;height:30px}.promotionGrid,.pathGrid{grid-template-columns:1fr}.viewer img{max-width:94vw;max-height:78vh}.viewerPrev{left:8px}.viewerNext{right:8px}}
+
+.accountTabs{display:flex;border-bottom:1px solid #ddd;margin-bottom:25px}.accountTab{flex:1;padding:12px;background:#fff;border:0;border-bottom:2px solid transparent;font-weight:700}.accountTab.active{border-bottom-color:#000}.userPanel{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #ddd;margin-bottom:20px}.avatar{width:40px;height:40px;border-radius:50%;background:#000;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800}
+.uploadBox{display:flex;align-items:center;justify-content:center;min-height:100px;border:1px dashed #aaa;background:#fafafa;cursor:pointer;text-align:center;transition:.2s}.uploadBox:hover{border-color:#000;background:#f3f3f3}.uploadBox strong{display:block;font-size:13px;text-transform:uppercase;letter-spacing:.08em}.uploadBox span{font-size:11px;color:#777;display:block;margin-top:5px}.uploadBox input{display:none!important}
+.imagePreview{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}.imagePreviewItem{position:relative;aspect-ratio:1/1;background:#eee;overflow:hidden;border:1px solid #ddd}.imagePreviewItem img{width:100%;height:100%;object-fit:cover;display:block}.imagePreviewItem span{position:absolute;right:5px;top:5px;background:#000;color:#fff;font-size:10px;padding:3px 6px}
+.detailGallery{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:25px}.detailGallery img{width:100%;height:110px;object-fit:cover}.detailPrice{font-size:22px;font-weight:800;margin:15px 0}.detailMeta{font-size:12px;color:#777;margin:6px 0}.detailActions{display:flex;gap:8px;flex-wrap:wrap;margin-top:22px}.review{border-top:1px solid #ddd;padding:14px 0}.reviewRating{font-weight:800}.reviewAuthor{font-size:11px;color:#777}.reviewBody{font-size:13px;margin-top:5px}
+@media(max-width:1000px){.navlinks{display:none}.menuBtn{display:block;order:-1}.search{width:auto;flex:1}.sellbtn{display:none}.hero{grid-template-columns:1fr}.heroText{min-height:520px;padding:70px 28px}.heroVisual{min-height:500px}.discovery,.products{grid-template-columns:repeat(2,1fr)}.footerGrid{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.nav{height:65px;padding:0 15px;gap:10px}.logo{font-size:20px}.search{display:none}.actions{margin-left:auto}.heroText{padding:65px 20px;min-height:540px}.hero h1{font-size:56px}.heroDescription{font-size:14px}.heroButtons{flex-direction:column}.heroButtons button{width:100%}.heroVisual{min-height:420px}.heroCard{width:72%}.utilityInner{padding:11px 15px;overflow-x:auto}.utilityGroup{white-space:nowrap}.section{padding:65px 15px}.sectionHead{align-items:flex-start;flex-direction:column}.discovery,.products{grid-template-columns:1fr 1fr;gap:8px}.discoveryCard{min-height:210px;padding:18px}.discoveryCard h3{font-size:20px;margin-top:35px}.productInfo{padding:13px}.productName{font-size:14px}.productPrice{font-size:13px}.filters{width:100%}.filters select{flex:1}.split{grid-template-columns:1fr}.splitBlock{min-height:340px;padding:40px 20px}.splitBlock+.splitBlock{border-left:0;border-top:1px solid #ddd}.sellerCta{padding:60px 20px;flex-direction:column;align-items:flex-start}.sellerCta h2{font-size:52px}.footerGrid{grid-template-columns:1fr 1fr;gap:35px 20px}.footerBottom{flex-direction:column;gap:8px}.detailGallery{grid-template-columns:repeat(2,1fr)}.imagePreview{grid-template-columns:repeat(3,1fr)}}
+
+.storeHeader{display:grid;grid-template-columns:90px 1fr;gap:22px;align-items:start;padding-bottom:25px;border-bottom:1px solid #ddd}.storeAvatar{width:90px;height:90px;border:1px solid #111;background:#000;color:#fff;display:flex;align-items:center;justify-content:center;font-size:34px;font-weight:900}.storeName{font-size:38px;line-height:.95;letter-spacing:-.06em}.storeHandle{font-size:12px;color:#777;margin-top:7px}.storeBio{font-size:13px;color:#555;max-width:600px;margin-top:14px}.storeMeta{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}.storeTag{border:1px solid #ddd;padding:7px 10px;font-size:10px;text-transform:uppercase;letter-spacing:.08em}.storeStats{display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid #ddd;margin-top:25px}.storeStat{padding:18px 10px;text-align:center;border-right:1px solid #ddd}.storeStat:last-child{border-right:0}.storeStat strong{display:block;font-size:23px;letter-spacing:-.04em}.storeStat span{font-size:9px;color:#777;text-transform:uppercase;letter-spacing:.1em}.storeActions{display:flex;gap:8px;margin-top:22px}.storeListings{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:22px}.storeListing{border:1px solid #ddd;display:grid;grid-template-columns:105px 1fr;min-height:105px;cursor:pointer;transition:.2s}.storeListing:hover{border-color:#000;transform:translateY(-2px)}.storeListingImage{background:#f1f1f1;display:flex;align-items:center;justify-content:center;overflow:hidden}.storeListingImage img{width:100%;height:100%;object-fit:cover}.storeListingInfo{padding:13px}.storeListingTitle{font-size:15px;font-weight:800;line-height:1.1}.storeListingPrice{font-size:12px;font-weight:800;margin-top:9px}.storeListingMeta{font-size:10px;color:#777;margin-top:5px}.storeReviews{margin-top:30px;border-top:1px solid #ddd;padding-top:25px}.storeReview{border-bottom:1px solid #eee;padding:14px 0}.storeReviewRating{font-size:12px}.storeReviewBody{font-size:12px;color:#555;margin-top:5px}.storeEmpty{padding:35px 10px;text-align:center;border:1px dashed #ccc;color:#777;font-size:12px}
+@media(max-width:700px){.storeHeader{grid-template-columns:65px 1fr}.storeAvatar{width:65px;height:65px;font-size:25px}.storeName{font-size:29px}.storeListings{grid-template-columns:1fr}.storeStats{grid-template-columns:repeat(3,1fr)}.storeActions{flex-direction:column}.storeActions button{width:100%}}
+
+/* ST2K PHONE NOTIFICATIONS */
+.notificationBtn{position:relative}.notificationBadge{display:none;position:absolute;right:-3px;top:-3px;min-width:17px;height:17px;padding:0 4px;border-radius:20px;background:#000;color:#fff;border:2px solid #fff;font-size:9px;font-weight:800;align-items:center;justify-content:center}.notificationBadge.show{display:flex}.pushPanel{border:1px solid #ddd;padding:18px;margin-top:18px;background:#fafafa}.pushPanel strong{display:block;font-size:13px}.pushPanel p{margin:6px 0 13px!important;font-size:12px!important;color:#777!important}.founderMark{margin-top:10px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#777}.founderMark strong{color:#fff}
+</style>
+</head>
+
+<body>
+<div class="topbar"><div class="ticker">
+<span>THE ST2K MARKETPLACE</span><span>Something to discover.</span><span>PRODUCTS · SERVICES · BUSINESSES · OPPORTUNITIES</span>
+<span>THE ST2K MARKETPLACE</span><span>Something to discover.</span>
+</div></div>
+
+<header><nav class="nav">
+<button class="menuBtn" onclick="openModal('menuModal')">☰</button>
+<a href="#" class="logo">ST2K<span>.</span></a>
+<div class="navlinks"><a href="#discover">Discover</a><a href="#connect">Connect</a><a href="#trade">Trade</a><a href="#marketplace">Marketplace</a></div>
+<div class="search"><input id="searchInput" type="search" placeholder="Search ST2K..." oninput="loadListings()"><button onclick="loadListings()">⌕</button></div>
+<div class="actions"><button class="iconbtn notificationBtn" onclick="openNotifications()" title="Notifications" aria-label="Notifications">♧<span id="notificationBadge" class="notificationBadge"></span></button><button class="iconbtn" onclick="openFavorites()" title="Favorites">♡</button><button class="iconbtn" onclick="openInbox()" title="Inbox">✉</button><span id="inboxBadge" class="inboxBadge"></span><button class="iconbtn" onclick="openAccount()" title="Account">◯</button><button class="sellbtn" onclick="openSell()">Sell</button></div>
+</nav></header>
+
+<div class="utility"><div class="utilityInner">
+<div class="utilityGroup"><span>Location</span><select id="locationFilter" onchange="loadListings()"><option value="">Worldwide</option><option>Zimbabwe</option><option>South Africa</option><option>United States</option><option>United Kingdom</option><option>Canada</option></select></div>
+<div class="utilityGroup"><span>Currency</span><select id="currencyFilter" onchange="loadListings()"><option value="">All currencies</option><option>USD</option><option>ZAR</option><option>ZWG</option><option>GBP</option><option>EUR</option></select></div>
+</div></div>
+
+<section class="hero"><div class="heroText">
+<div class="eyebrow">THE GLOBAL MARKETPLACE · FOUNDED BY TYRESE_ST2K</div><h1>Something<span>to discover.</span></h1>
+<p class="heroDescription">Discover products, services, businesses and opportunities from people and brands around the world.</p>
+<div class="heroButtons"><button class="primary" onclick="scrollToSection('marketplace')">Explore marketplace</button><button class="secondary" onclick="openSell()">List something</button></div>
+</div><div class="heroVisual"><div class="heroCard"><div class="heroCardContent"><div class="heroCardNumber">ST2K / 001</div><div class="heroCardTitle">Discover.<br>Connect.<br>Trade.</div><div class="heroCardLine"></div></div></div></div></section>
+
+<section class="section" id="discover"><div class="sectionHead"><div><div class="sectionEyebrow">Explore</div><h2 class="sectionTitle">Discover by category</h2></div><a href="#marketplace" class="viewAll">View marketplace</a></div>
+<div class="categories">
+<button class="category active" onclick="filterCategory('',this)">All</button><button class="category" onclick="filterCategory('Product',this)">Products</button><button class="category" onclick="filterCategory('Service',this)">Services</button><button class="category" onclick="filterCategory('Business',this)">Businesses</button><button class="category" onclick="filterCategory('Opportunity',this)">Opportunities</button>
+</div><br><br>
+<div class="discovery">
+<article class="discoveryCard" onclick="filterCategory('Product',document.querySelectorAll('.category')[1])"><div class="discoveryNumber">01</div><h3>Products</h3><p>Find products from independent sellers and stores.</p><div class="discoveryArrow">↗</div></article>
+<article class="discoveryCard" onclick="filterCategory('Service',document.querySelectorAll('.category')[2])"><div class="discoveryNumber">02</div><h3>Services</h3><p>Connect with people offering useful skills and services.</p><div class="discoveryArrow">↗</div></article>
+<article class="discoveryCard" onclick="filterCategory('Business',document.querySelectorAll('.category')[3])"><div class="discoveryNumber">03</div><h3>Businesses</h3><p>Discover businesses and independent brands.</p><div class="discoveryArrow">↗</div></article>
+<article class="discoveryCard" onclick="filterCategory('Opportunity',document.querySelectorAll('.category')[4])"><div class="discoveryNumber">04</div><h3>Opportunities</h3><p>Explore opportunities shared by people and businesses.</p><div class="discoveryArrow">↗</div></article>
+</div></section>
+
+<section class="section marketHeader" id="marketplace"><div class="sectionHead"><div><div class="sectionEyebrow">Marketplace</div><h2 class="sectionTitle">Latest discoveries</h2></div><div class="filters"><select id="sortSelect" onchange="loadListings()"><option value="latest">Latest</option><option value="price-low">Price: Low to high</option><option value="price-high">Price: High to low</option></select></div></div>
+<div class="products" id="productGrid"><div class="empty"><strong>Connecting to ST2K...</strong>Loading the real marketplace.</div></div></section>
+
+<section class="split" id="services"><div class="splitBlock"><div><div class="sectionEyebrow">Services</div><h2>Find<br>someone<br>who can.</h2></div><p>From designers and developers to photographers, consultants and local specialists, discover people who can help you get things done.</p></div>
+<div class="splitBlock" id="businesses"><div><div class="sectionEyebrow">Businesses</div><h2>Discover<br>what is<br>around.</h2></div><p>Explore independent businesses, brands and stores from your city or anywhere around the world.</p></div></section>
+
+<section class="finalPath" id="connect"><div class="sectionHead"><div><div class="sectionEyebrow">The ST2K journey</div><h2 class="sectionTitle">Discover. Connect. Trade.</h2></div></div><div class="pathGrid"><article class="pathCard"><b>01 · DISCOVER</b><h3>Find something.</h3><p>Explore products, services, businesses and opportunities from people and brands on ST2K.</p></article><article class="pathCard"><b>02 · CONNECT</b><h3>Talk to people.</h3><p>Open seller stores, message sellers, save listings and build trust through reviews.</p></article><article class="pathCard"><b>03 · TRADE</b><h3>Make the deal.</h3><p>Agree on the details directly with the seller. ST2K helps people find and connect; it does not hold buyer funds.</p></article></div></section>
+<section class="finalPath" id="trade"><div class="sectionHead"><div><div class="sectionEyebrow">ST2K growth</div><h2 class="sectionTitle">Get discovered.</h2></div><button class="viewAll" onclick="openPromotion()">Promote a listing</button></div><p style="max-width:700px;color:#666;font-size:14px">Normal listings stay free. Sellers can pay ST2K for extra visibility through Featured and Promoted placements.</p></section>
+<section class="sellerCta"><div><h2>Have something worth discovering?</h2><p>Create your presence on ST2K and connect your products, services, business or opportunities with people looking for them.</p></div><button class="whiteBtn" onclick="openSell()">Start listing</button></section>
+
+<footer><div class="footerGrid"><div><div class="footerBrand">ST2K.</div><p class="footerText">THE ST2K MARKETPLACE — a place to discover products, services, businesses and opportunities.</p></div>
+<div class="footerCol"><h4>Marketplace</h4><a href="#marketplace">Products</a><a href="#services">Services</a><a href="#businesses">Businesses</a><a href="#marketplace">Opportunities</a></div>
+<div class="footerCol"><h4>Account</h4><a href="#" onclick="openAccount();return false">Sign in</a><a href="#" onclick="openAccount();return false">Create account</a><a href="#" onclick="openFavorites();return false">Favorites</a><a href="#" onclick="openSell();return false">Sell on ST2K</a></div>
+<div class="footerCol"><h4>Information</h4><a href="#">About ST2K</a><a href="#">Help</a><a href="#">Safety</a><a href="#">Privacy</a><a href="#">Terms</a></div></div>
+<div class="footerBottom"><span>© 2026 THE ST2K MARKETPLACE</span><span>Something to discover. · Founded by <strong>Tyrese_st2k</strong></span></div></footer>
+
+<!-- ACCOUNT -->
+<div class="modal" id="accountModal"><div class="modalBox"><button class="close" onclick="closeModal('accountModal')">×</button>
+<div id="loggedOutAccount"><h2>Your ST2K account.</h2><p>Create an account or sign in to save listings, message sellers and manage your marketplace activity.</p>
+<div class="accountTabs"><button class="accountTab active" id="loginTab" onclick="showAuth('login')">Sign in</button><button class="accountTab" id="signupTab" onclick="showAuth('signup')">Create account</button></div>
+<div id="authStatus" class="status"></div>
+<div id="loginForm"><div class="formGroup"><label>Email</label><input id="loginEmail" type="email" autocomplete="email" placeholder="you@example.com"></div><div class="formGroup"><label>Password</label><input id="loginPassword" type="password" autocomplete="current-password" placeholder="Password"></div><button class="primary" style="width:100%" onclick="signIn()">Sign in</button></div>
+<div id="signupForm" class="hidden"><div class="formGroup"><label>Username</label><input id="signupUsername" type="text" placeholder="Choose a username"></div><div class="formGroup"><label>Display name</label><input id="signupDisplayName" type="text" placeholder="Your name or business name"></div><div class="formGroup"><label>Email</label><input id="signupEmail" type="email" autocomplete="email" placeholder="you@example.com"></div><div class="formGroup"><label>Password</label><input id="signupPassword" type="password" autocomplete="new-password" placeholder="At least 6 characters"></div><button class="primary" style="width:100%" onclick="signUp()">Create account</button></div>
+</div>
+<div id="loggedInAccount" class="hidden"><div class="userPanel"><div class="avatar" id="accountAvatar">S</div><div><strong id="accountUsername">ST2K User</strong><div id="accountEmail" style="font-size:12px;color:#777"></div></div></div><button class="primary" style="width:100%;margin-bottom:10px" onclick="openSell()">Create listing</button><button class="secondary" style="width:100%;margin-bottom:10px" onclick="openMyProfile()">My profile</button><button class="secondary" style="width:100%;margin-bottom:10px" onclick="openMyListings()">Manage my listings</button><div class="pushPanel"><strong>ST2K phone notifications</strong><p>Get alerts on this Android phone for new messages and new drops.</p><button class="secondary" style="width:100%" onclick="enablePushNotifications()">Enable notifications</button><div id="pushStatus" class="status"></div></div><button class="secondary" style="width:100%;margin-top:10px" onclick="signOut()">Sign out</button></div>
+</div></div>
+
+<!-- NOTIFICATIONS -->
+<div class="modal" id="notificationsModal"><div class="modalBox"><button class="close" onclick="closeModal('notificationsModal')">×</button><div class="sectionEyebrow">ST2K Notifications</div><h2>Stay in the loop.</h2><p>Turn on phone notifications to receive new message and new drop alerts.</p><div class="pushPanel"><strong>Phone notifications</strong><p>Notifications can appear even when ST2K is not open.</p><button class="primary" style="width:100%" onclick="enablePushNotifications()">Enable phone notifications</button><div id="pushStatusModal" class="status"></div></div><div class="founderMark">THE ST2K MARKETPLACE · Founded by <strong>Tyrese_st2k</strong></div></div></div>
+
+<!-- SELL -->
+<div class="modal" id="sellModal"><div class="modalBox"><button class="close" onclick="closeModal('sellModal')">×</button>
+<h2>List on ST2K.</h2><p>Publish a real listing to the ST2K marketplace.</p><div id="listingStatus" class="status"></div>
+<div class="formGroup"><label>Title</label><input id="listingTitle" type="text" placeholder="What are you offering?"></div>
+<div class="formGroup"><label>Type</label><select id="listingType"><option value="Product">Product</option><option value="Service">Service</option><option value="Business">Business</option><option value="Opportunity">Opportunity</option></select></div>
+<div class="formGroup"><label>Category</label><input id="listingCategory" type="text" placeholder="Fashion, Technology, Design..."></div>
+<div class="formGroup"><label>Description</label><textarea id="listingDescription" rows="4" placeholder="Describe your listing"></textarea></div>
+<div class="formGroup"><label>Price</label><input id="listingPrice" type="number" min="0" step="0.01" placeholder="0"></div>
+<div class="formGroup"><label>Currency</label><select id="listingCurrency"><option>USD</option><option>ZAR</option><option>ZWG</option><option>GBP</option><option>EUR</option></select></div>
+<div class="formGroup"><label>Country</label><input id="listingCountry" type="text" placeholder="Country"></div>
+<div class="formGroup"><label>City</label><input id="listingCity" type="text" placeholder="City"></div>
+
+<!-- FIXED PHOTO UPLOADER -->
+<div class="formGroup">
+<label>Listing pictures</label>
+<label class="uploadBox" for="listingImages">
+<div><strong>+ Add photos</strong><span>Select up to 6 pictures · 8MB maximum each</span></div>
+<input id="listingImages" type="file" accept="image/*" multiple onchange="addListingImages(this)">
+</label>
+<div id="listingImagePreview" class="imagePreview"></div>
+</div>
+
+<button class="primary" style="width:100%" onclick="createListing()">Publish listing</button>
+</div></div>
+
+<!-- FAVORITES -->
+<div class="modal" id="favoritesModal"><div class="modalBox"><button class="close" onclick="closeModal('favoritesModal')">×</button><h2>Your favorites.</h2><p>Listings you save will appear here.</p><div id="favoritesContent">Loading...</div></div></div>
+
+<!-- DETAIL -->
+<div class="modal" id="listingModal"><div class="modalBox"><button class="close" onclick="closeModal('listingModal')">×</button><div id="listingDetail"></div></div></div>
+
+<!-- PROFILE -->
+<div class="modal" id="profileModal"><div class="modalBox"><button class="close" onclick="closeModal('profileModal')">×</button><h2>Your profile.</h2><p>Manage your public ST2K identity.</p><div id="profileStatus" class="status"></div>
+<div class="formGroup"><label>Username</label><input id="profileUsername" type="text"></div><div class="formGroup"><label>Display name</label><input id="profileDisplayName" type="text"></div><div class="formGroup"><label>Bio</label><textarea id="profileBio" rows="4"></textarea></div><div class="formGroup"><label>Country</label><input id="profileCountry" type="text"></div><div class="formGroup"><label>City</label><input id="profileCity" type="text"></div><button class="primary" style="width:100%" onclick="saveProfile()">Save profile</button>
+</div></div>
+
+
+<!-- SELLER STOREFRONT -->
+<div class="modal" id="sellerStoreModal"><div class="modalBox" style="width:min(900px,100%)"><button class="close" onclick="closeModal('sellerStoreModal')">×</button><div id="sellerStoreContent"><div class="status info">Loading seller store...</div></div></div></div>
+<!-- MESSAGE -->
+<div class="modal" id="messageModal"><div class="modalBox"><button class="close" onclick="closeModal('messageModal')">×</button><h2>Message seller.</h2><p id="messageSellerName"></p><div id="messageStatus" class="status"></div><div class="formGroup"><label>Message</label><textarea id="messageBody" rows="6" placeholder="Write your message..."></textarea></div><button class="primary" style="width:100%" onclick="sendMessage()">Send message</button></div></div>
+<!-- INBOX -->
+<div class="modal" id="inboxModal"><div class="modalBox" style="width:min(760px,100%)"><button class="close" onclick="closeModal('inboxModal')">×</button><div id="inboxView"><div class="sectionEyebrow">ST2K Messages</div><h2>Inbox.</h2><p>Keep every buyer and seller conversation in one place.</p><div class="messageToolbar"><button class="secondary" onclick="loadInbox()">Refresh</button></div><div id="inboxStatus" class="status"></div><div id="inboxContent"></div></div><div id="threadView" class="hidden"><div id="threadContent"></div></div></div></div>
+
+<!-- REVIEW -->
+<div class="modal" id="reviewModal"><div class="modalBox"><button class="close" onclick="closeModal('reviewModal')">×</button><h2>Review seller.</h2><div id="reviewStatus" class="status"></div><div class="formGroup"><label>Rating</label><select id="reviewRating"><option value="5">5 — Excellent</option><option value="4">4 — Good</option><option value="3">3 — Average</option><option value="2">2 — Poor</option><option value="1">1 — Very poor</option></select></div><div class="formGroup"><label>Review</label><textarea id="reviewBody" rows="5" placeholder="Share your experience"></textarea></div><button class="primary" style="width:100%" onclick="submitReview()">Publish review</button></div></div>
+
+<!-- REPORT -->
+<div class="modal" id="reportModal"><div class="modalBox"><button class="close" onclick="closeModal('reportModal')">×</button><h2>Report listing.</h2><div id="reportStatus" class="status"></div><div class="formGroup"><label>Reason</label><select id="reportReason"><option value="Scam">Scam or fraud</option><option value="Prohibited">Prohibited content</option><option value="Misleading">Misleading listing</option><option value="Harassment">Harassment</option><option value="Other">Other</option></select></div><div class="formGroup"><label>Details</label><textarea id="reportDetails" rows="5" placeholder="Tell us what happened"></textarea></div><button class="primary" style="width:100%" onclick="submitReport()">Submit report</button></div></div>
+
+<!-- MY LISTINGS -->
+<div class="modal" id="myListingsModal"><div class="modalBox" style="width:min(900px,100%)"><button class="close" onclick="closeModal('myListingsModal')">×</button><div class="sectionEyebrow">Seller dashboard</div><h2>My listings.</h2><p>Manage, edit, pause, mark sold or permanently delete your listings.</p><div id="myListingsStatus" class="status"></div><div id="myListingsContent"></div></div></div>
+
+<!-- EDIT LISTING -->
+<div class="modal" id="editListingModal"><div class="modalBox"><button class="close" onclick="closeModal('editListingModal')">×</button><h2>Edit listing.</h2><p>Update your listing information.</p><div id="editListingStatus" class="status"></div><input id="editListingId" type="hidden">
+<div class="formGroup"><label>Title</label><input id="editListingTitle" type="text"></div>
+<div class="formGroup"><label>Type</label><select id="editListingType"><option value="Product">Product</option><option value="Service">Service</option><option value="Business">Business</option><option value="Opportunity">Opportunity</option></select></div>
+<div class="formGroup"><label>Category</label><input id="editListingCategory" type="text"></div>
+<div class="formGroup"><label>Description</label><textarea id="editListingDescription" rows="5"></textarea></div>
+<div class="formGroup"><label>Price</label><input id="editListingPrice" type="number" min="0" step="0.01"></div>
+<div class="formGroup"><label>Currency</label><select id="editListingCurrency"><option>USD</option><option>ZAR</option><option>ZWG</option><option>GBP</option><option>EUR</option></select></div>
+<div class="formGroup"><label>Country</label><input id="editListingCountry" type="text"></div>
+<div class="formGroup"><label>City</label><input id="editListingCity" type="text"></div>
+<button class="primary" style="width:100%" onclick="saveListingEdit()">Save changes</button></div></div>
+
+<!-- MENU -->
+<div class="modal" id="menuModal"><div class="modalBox"><button class="close" onclick="closeModal('menuModal')">×</button><h2>ST2K.</h2><p>Explore the marketplace.</p><div style="display:grid;gap:12px">
+<button class="secondary" onclick="scrollToSection('discover');closeModal('menuModal')">Discover</button><button class="secondary" onclick="scrollToSection('connect');closeModal('menuModal')">Connect</button><button class="secondary" onclick="scrollToSection('trade');closeModal('menuModal')">Trade</button><button class="secondary" onclick="scrollToSection('marketplace');closeModal('menuModal')">Marketplace</button><button class="primary" onclick="openSell();closeModal('menuModal')">Sell on ST2K</button>
+</div></div></div>
+
+<!-- PROMOTION -->
+<div class="modal" id="promotionModal"><div class="modalBox"><button class="close" onclick="closeModal('promotionModal')">×</button><h2>Promote on ST2K.</h2><p>Keep ordinary listings free. Pay only when you want extra visibility.</p><div id="promotionStatus" class="status"></div><div class="formGroup"><label>Listing</label><select id="promotionListing"></select></div><div class="promotionGrid"><button class="promotionCard" onclick="choosePromotion('featured_7',2)"><strong>$2</strong><p>Featured · 7 days</p><span class="primary" style="display:block;text-align:center">Choose</span></button><button class="promotionCard" onclick="choosePromotion('featured_14',3.5)"><strong>$3.50</strong><p>Featured · 14 days</p><span class="primary" style="display:block;text-align:center">Choose</span></button><button class="promotionCard" onclick="choosePromotion('featured_30',5)"><strong>$5</strong><p>Featured · 30 days</p><span class="primary" style="display:block;text-align:center">Choose</span></button></div><div class="ecoBox"><div class="sectionEyebrow">EcoCash payment</div><div class="ecoNumber">078 841 4541</div><p style="margin:6px 0 0;color:#666;font-size:12px">Send the selected amount, then submit your payment reference below. Promotion is activated after ST2K verifies payment.</p></div><div class="formGroup"><label>EcoCash reference</label><input id="promotionReference" type="text" placeholder="Enter your EcoCash transaction reference"></div><button class="primary" style="width:100%" onclick="submitPromotionRequest()">Submit promotion request</button><div class="moneyNote">Manual approval for now. Live automated payment processing can be added later.</div></div></div>
+
+<!-- IMAGE VIEWER -->
+<div class="viewer" id="imageViewer" onclick="if(event.target.id==='imageViewer')closeImageViewer()"><button class="viewerClose" onclick="closeImageViewer()">×</button><button class="viewerPrev" onclick="viewerMove(-1)">‹</button><img id="viewerImage" alt="Listing photo"><button class="viewerNext" onclick="viewerMove(1)">›</button><div class="viewerCount" id="viewerCount"></div></div>
+
+<script>
+const SUPABASE_URL="https://nirfvfqpmmdbblvzgxrf.supabase.co";
+const SUPABASE_ANON_KEY="sb_publishable_W2zbH9hFncu82Azjg89N1Q_-tuvgkJh";
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+const PUSH_PUBLIC_KEY="BCmFYSYaAuJVFrzBvh88lHOCE5KPsKQl_hU3__DILsuVjp1B6LUucfMGHfbsBDhGJ49WaET5RngZ_-HZQNeB2J8";
+const PUSH_FUNCTION_URL=SUPABASE_URL+"/functions/v1/st2k-push";
+
+let currentUser=null,activeCategory="",listings=[],favoriteIds=[],activeSellerId=null,activeListingId=null,selectedListingFiles=[];
+let viewerImages=[],viewerIndex=0;
+
+async function registerST2KPushWorker(){
+ try{
+  if(!('serviceWorker' in navigator)||!('PushManager' in window)||!('Notification' in window))return;
+  await navigator.serviceWorker.register('./sw.js',{scope:'./'});
+ }catch(err){console.warn('ST2K push worker registration failed',err);}
+}
+function base64ToUint8Array(base64String){
+ const padding='='.repeat((4-base64String.length%4)%4);
+ const base64=(base64String+padding).replace(/-/g,'+').replace(/_/g,'/');
+ const raw=atob(base64);const output=new Uint8Array(raw.length);
+ for(let i=0;i<raw.length;i++)output[i]=raw.charCodeAt(i);
+ return output;
+}
+async function enablePushNotifications(){
+ if(!currentUser){openAccount();setStatus('authStatus','Sign in before enabling phone notifications.','error');return;}
+ const setBoth=(msg,type)=>{setStatus('pushStatus',msg,type);setStatus('pushStatusModal',msg,type)};
+ try{
+  if(!('serviceWorker' in navigator)||!('PushManager' in window)||!('Notification' in window)){setBoth('Phone notifications are not supported by this browser.','error');return;}
+  if(Notification.permission==="denied"){setBoth("Notifications are blocked for ST2K. Enable them in your Android browser site settings.","error");return;}
+  const permission=await Notification.requestPermission();
+  if(permission!=='granted'){setBoth('Notification permission was not granted. Enable notifications for ST2K in Android browser settings.','error');return;}
+  const registration=await navigator.serviceWorker.ready;
+  let subscription=await registration.pushManager.getSubscription();
+  if(!subscription)subscription=await registration.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:base64ToUint8Array(PUSH_PUBLIC_KEY)});
+  const json=subscription.toJSON();
+  const keys=json.keys||{};
+  const {error}=await db.from('push_subscriptions').upsert({user_id:currentUser.id,endpoint:json.endpoint,p256dh:keys.p256dh,auth:keys.auth,updated_at:new Date().toISOString()},{onConflict:'endpoint'});
+  if(error)throw error;
+  setBoth('Phone notifications are ON. ST2K can now alert you about messages and new drops.','success');
+ }catch(err){console.error('ST2K PUSH ENABLE ERROR',err);setBoth('Could not enable phone notifications: '+(err?.message||String(err)),'error');}
+}
+function openNotifications(){
+ openModal('notificationsModal');
+ if(currentUser){setTimeout(()=>{const el=document.getElementById('pushStatusModal');if(Notification.permission==='granted')setStatus('pushStatusModal','Phone notifications are enabled or ready to connect.','success');},50)}
+}
+async function sendPushSignal(action,payload){
+ if(!currentUser)return;
+ try{
+  const {data:{session}}=await db.auth.getSession();
+  if(!session?.access_token)return;
+  const response=await fetch(PUSH_FUNCTION_URL,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token,'apikey':SUPABASE_ANON_KEY},body:JSON.stringify({action,...payload})});
+  if(!response.ok)console.warn('ST2K push signal failed',response.status,await response.text());
+ }catch(err){console.warn('ST2K push signal error',err);}
+}
+
+async function initST2K(){
+ registerST2KPushWorker();
+ const {data:{session}}=await db.auth.getSession();
+ currentUser=session?.user||null;
+ updateAccountUI();
+ if(currentUser){await ensureProfile();await loadFavorites();await updateMessageBadge();}
+ else{updateMessageBadge();}
+ await loadListings();
+ db.auth.onAuthStateChange(async(event,session)=>{
+  currentUser=session?.user||null;updateAccountUI();
+  if(currentUser){await ensureProfile();await loadFavorites();await updateMessageBadge();}else{favoriteIds=[];updateMessageBadge();}
+  await loadListings();
+ });
+}
+initST2K();
+
+async function ensureProfile(){
+ if(!currentUser)return;
+ const {data,error}=await db.from("profiles").select("id").eq("id",currentUser.id).maybeSingle();
+ if(error){console.error(error);return;}
+ if(!data){
+  const username=currentUser.user_metadata?.username||currentUser.email?.split("@")[0]||("user"+Date.now());
+  const displayName=currentUser.user_metadata?.display_name||username;
+  const {error:createError}=await db.from("profiles").insert({id:currentUser.id,username,display_name:displayName});
+  if(createError)console.error(createError);
+ }
+}
+
+async function openMyProfile(){
+ if(!currentUser){openAccount();return;}
+ closeModal("accountModal");openModal("profileModal");
+ const {data,error}=await db.from("profiles").select("*").eq("id",currentUser.id).single();
+ if(error){setStatus("profileStatus",error.message,"error");return;}
+ document.getElementById("profileUsername").value=data.username||"";
+ document.getElementById("profileDisplayName").value=data.display_name||"";
+ document.getElementById("profileBio").value=data.bio||"";
+ document.getElementById("profileCountry").value=data.country||"";
+ document.getElementById("profileCity").value=data.city||"";
+}
+async function saveProfile(){
+ if(!currentUser)return;
+ const username=document.getElementById("profileUsername").value.trim();
+ if(!username){setStatus("profileStatus","Username is required.","error");return;}
+ const {error}=await db.from("profiles").update({
+  username,display_name:document.getElementById("profileDisplayName").value.trim()||username,
+  bio:document.getElementById("profileBio").value.trim(),country:document.getElementById("profileCountry").value.trim(),
+  city:document.getElementById("profileCity").value.trim()
+ }).eq("id",currentUser.id);
+ if(error){setStatus("profileStatus",error.message,"error");return;}
+ setStatus("profileStatus","Profile saved.","success");updateAccountUI();await loadListings();
+}
+async function openSellerStore(sellerId){
+ if(!sellerId)return;
+ closeModal("listingModal");
+ openModal("sellerStoreModal");
+ const box=document.getElementById("sellerStoreContent");
+ box.innerHTML='<div class="status info">Loading seller store...</div>';
+ try{
+  const [{data:profile,error:profileError},{data:sellerListings,error:listError},{data:reviews,error:reviewError}]=await Promise.all([
+   db.from("profiles").select("id,username,display_name,bio,country,city,avatar_url,created_at").eq("id",sellerId).single(),
+   db.from("listings").select("id,title,description,listing_type,category,price,currency,country,city,image_urls,status,created_at").eq("seller_id",sellerId).eq("status","active").order("created_at",{ascending:false}),
+   db.from("reviews").select("id,rating,body,created_at").eq("seller_id",sellerId).order("created_at",{ascending:false}).limit(20)
+  ]);
+  if(profileError){box.innerHTML='<div class="status error">Could not load seller profile: '+escapeHtml(profileError.message)+'</div>';return;}
+  if(listError){box.innerHTML='<div class="status error">Could not load seller listings: '+escapeHtml(listError.message)+'</div>';return;}
+  const p=profile||{};
+  const items=sellerListings||[];
+  const rs=reviewError?[]:(reviews||[]);
+  const ratingTotal=rs.reduce((sum,r)=>sum+(Number(r.rating)||0),0);
+  const avg=rs.length?(ratingTotal/rs.length).toFixed(1):"—";
+  const name=p.display_name||p.username||"ST2K seller";
+  const initial=(name.trim().charAt(0)||"S").toUpperCase();
+  const location=[p.city,p.country].filter(Boolean).join(", ");
+  const joinDate=p.created_at?new Date(p.created_at).toLocaleDateString(undefined,{month:"short",year:"numeric"}):"";
+  const own=currentUser&&currentUser.id===sellerId;
+  const listingHtml=items.length?items.map(item=>{
+    const image=normalImages(item.image_urls)[0]||null;
+    const price=item.price!==null&&item.price!==undefined?`${item.currency||"USD"} ${Number(item.price).toLocaleString()}`:"Contact seller";
+    return `<article class="storeListing" onclick="openSellerListingFromStore('${item.id}')"><div class="storeListingImage">${image?`<img src="${escapeAttr(image)}" alt="${escapeAttr(item.title)}" loading="lazy">`:`<div class="productPlaceholder">ST2K</div>`}</div><div class="storeListingInfo"><div class="productType">${escapeHtml(item.listing_type||"Listing")}${item.category?" · "+escapeHtml(item.category):""}</div><div class="storeListingTitle">${escapeHtml(item.title)}</div><div class="storeListingPrice">${escapeHtml(price)}</div><div class="storeListingMeta">${escapeHtml([item.city,item.country].filter(Boolean).join(", ")||"Worldwide")}</div></div></article>`;
+  }).join(""):'<div class="storeEmpty" style="grid-column:1/-1">This seller has no active listings yet.</div>';
+  const reviewHtml=rs.length?rs.slice(0,6).map(r=>{const n=Math.max(0,Math.min(5,Number(r.rating)||0));return `<div class="storeReview"><div class="storeReviewRating">${"★".repeat(n)}${"☆".repeat(5-n)}</div><div class="storeReviewBody">${escapeHtml(r.body||"")}</div></div>`}).join(""):'<div class="storeEmpty">No reviews yet.</div>';
+  box.innerHTML=`<div class="storeHeader"><div class="storeAvatar">${escapeHtml(initial)}</div><div><div class="sectionEyebrow">ST2K Seller Store</div><h2 class="storeName">${escapeHtml(name)}</h2>${p.username?`<div class="storeHandle">@${escapeHtml(p.username)}</div>`:""}<div class="storeBio">${escapeHtml(p.bio||"This seller has not added a bio yet.")}</div><div class="storeMeta">${location?`<span class="storeTag">${escapeHtml(location)}</span>`:""}${joinDate?`<span class="storeTag">Joined ${escapeHtml(joinDate)}</span>`:""}</div></div></div><div class="storeStats"><div class="storeStat"><strong>${items.length}</strong><span>Active listings</span></div><div class="storeStat"><strong>${rs.length}</strong><span>Reviews</span></div><div class="storeStat"><strong>${avg}</strong><span>Average rating</span></div></div><div class="storeActions">${own?'<button class="secondary" onclick="closeModal(\'sellerStoreModal\');openMyProfile()">Edit my profile</button>':`<button class="primary" onclick="contactSellerFromStore('${sellerId}')">Message seller</button>`}</div><div style="margin-top:32px"><div class="sectionEyebrow">Listings</div><h3 style="font-size:25px;letter-spacing:-.04em">From this seller</h3><div class="storeListings">${listingHtml}</div></div><div class="storeReviews"><div class="sectionEyebrow">Reputation</div><h3 style="font-size:25px;letter-spacing:-.04em">Seller reviews</h3>${reviewHtml}</div>`;
+ }catch(err){console.error("ST2K SELLER STORE ERROR",err);box.innerHTML='<div class="status error">Could not load this seller store.</div>';}
+}
+function openSellerListingFromStore(listingId){
+ closeModal("sellerStoreModal");
+ setTimeout(()=>openListing(listingId),100);
+}
+async function contactSellerFromStore(sellerId){
+ closeModal("sellerStoreModal");
+ await contactSeller(sellerId);
+}
+async function loadSellerProfile(sellerId){
+ const {data}=await db.from("profiles").select("*").eq("id",sellerId).single();return data||null;
+}
+
+function updateAccountUI(){
+ const loggedOut=document.getElementById("loggedOutAccount"),loggedIn=document.getElementById("loggedInAccount");
+ if(currentUser){
+  loggedOut.classList.add("hidden");loggedIn.classList.remove("hidden");
+  const username=currentUser.user_metadata?.username||currentUser.email?.split("@")[0]||"ST2K User";
+  document.getElementById("accountUsername").textContent=username;
+  document.getElementById("accountEmail").textContent=currentUser.email||"";
+  document.getElementById("accountAvatar").textContent=username.charAt(0).toUpperCase();
+ }else{loggedOut.classList.remove("hidden");loggedIn.classList.add("hidden");}
+}
+function showAuth(mode){
+ const login=document.getElementById("loginForm"),signup=document.getElementById("signupForm"),lt=document.getElementById("loginTab"),st=document.getElementById("signupTab");
+ if(mode==="login"){login.classList.remove("hidden");signup.classList.add("hidden");lt.classList.add("active");st.classList.remove("active");}
+ else{login.classList.add("hidden");signup.classList.remove("hidden");lt.classList.remove("active");st.classList.add("active");}
+ setStatus("authStatus","");
+}
+async function signUp(){
+ const username=document.getElementById("signupUsername").value.trim(),displayName=document.getElementById("signupDisplayName").value.trim(),email=document.getElementById("signupEmail").value.trim(),password=document.getElementById("signupPassword").value;
+ if(!username||!email||!password){setStatus("authStatus","Please complete the required fields.","error");return;}
+ if(password.length<6){setStatus("authStatus","Password must be at least 6 characters.","error");return;}
+ setStatus("authStatus","Creating your ST2K account...","info");
+ const {data,error}=await db.auth.signUp({email,password,options:{data:{username,display_name:displayName||username}}});
+ if(error){setStatus("authStatus",error.message,"error");return;}
+ if(data.user){
+  currentUser=data.user;
+  if(data.session){await ensureProfile();updateAccountUI();setStatus("authStatus","Account created successfully.","success");}
+  else setStatus("authStatus","Account created. Check your email to confirm your account.","success");
+ }
+}
+async function signIn(){
+ const email=document.getElementById("loginEmail").value.trim(),password=document.getElementById("loginPassword").value;
+ if(!email||!password){setStatus("authStatus","Enter your email and password.","error");return;}
+ setStatus("authStatus","Signing in...","info");
+ const {data,error}=await db.auth.signInWithPassword({email,password});
+ if(error){setStatus("authStatus",error.message,"error");return;}
+ currentUser=data.user;await ensureProfile();updateAccountUI();setStatus("authStatus","Signed in successfully.","success");await loadFavorites();await loadListings();
+}
+async function signOut(){await db.auth.signOut();currentUser=null;favoriteIds=[];updateAccountUI();closeModal("accountModal");}
+
+async function loadListings(){
+ const grid=document.getElementById("productGrid");
+ grid.innerHTML='<div class="empty"><strong>Loading marketplace...</strong>Fetching real ST2K listings.</div>';
+ let query=db.from("listings").select(`id,seller_id,title,description,category,subcategory,listing_type,price,currency,country,city,image_urls,status,created_at,profiles(id,username,display_name)`).eq("status","active");
+ if(activeCategory)query=query.eq("listing_type",activeCategory);
+ const search=document.getElementById("searchInput").value.trim();
+ if(search){const safe=search.replace(/,/g," ");query=query.or(`title.ilike.%${safe}%,description.ilike.%${safe}%,category.ilike.%${safe}%`);}
+ const location=document.getElementById("locationFilter").value;if(location)query=query.eq("country",location);
+ const currency=document.getElementById("currencyFilter").value;if(currency)query=query.eq("currency",currency);
+ const sort=document.getElementById("sortSelect").value;
+ if(sort==="price-low")query=query.order("price",{ascending:true,nullsFirst:false});
+ else if(sort==="price-high")query=query.order("price",{ascending:false,nullsFirst:false});
+ else query=query.order("created_at",{ascending:false});
+ const {data,error}=await query.limit(100);
+ if(error){console.error(error);grid.innerHTML=`<div class="empty"><strong>Marketplace unavailable.</strong>${escapeHtml(error.message)}</div>`;return;}
+ listings=data||[];
+ if(!listings.length){grid.innerHTML='<div class="empty"><strong>Nothing here yet.</strong>Be the first person to publish something on ST2K.<br><br><button class="primary" onclick="openSell()">Create the first listing</button></div>';return;}
+ grid.innerHTML=listings.map(renderListing).join("");
+}
+
+function normalImages(value){
+ if(Array.isArray(value))return value.filter(Boolean);
+ if(typeof value==="string"){
+  try{const parsed=JSON.parse(value);return Array.isArray(parsed)?parsed.filter(Boolean):[];}catch(e){return value? [value]:[];}
+ }
+ return [];
+}
+function renderListing(item){
+ const image=normalImages(item.image_urls)[0]||null;
+ const seller=item.profiles?.display_name||item.profiles?.username||"ST2K seller";
+ const location=[item.city,item.country].filter(Boolean).join(", ")||"Worldwide";
+ const price=item.price!==null&&item.price!==undefined?`${item.currency||"USD"} ${Number(item.price).toLocaleString()}`:"Contact seller";
+ const saved=favoriteIds.includes(item.id);
+ return `<article class="product"><div class="productImage" onclick="openListing('${item.id}')">
+ ${image?`<img src="${escapeAttr(image)}" alt="${escapeAttr(item.title)}" loading="lazy" onerror="this.style.display='none';this.parentElement.querySelector('.fallback').style.display='block'">`:""}
+ <div class="productPlaceholder fallback" style="${image?"display:none":""}">ST2K</div>
+ <button class="favorite ${saved?"saved":""}" onclick="event.stopPropagation();toggleFavorite('${item.id}',this)">${saved?"♥":"♡"}</button>
+ </div><div class="productInfo" onclick="openListing('${item.id}')">
+ <div class="productType">${escapeHtml(item.listing_type||"Listing")}${item.category?" · "+escapeHtml(item.category):""}</div>
+ <div class="productName">${escapeHtml(item.title)}</div><div class="productSeller" onclick="event.stopPropagation();openSellerStore('${item.seller_id}')">${escapeHtml(seller)} · View store</div>
+ <div class="productBottom"><div class="productPrice">${escapeHtml(price)}</div><div class="productLocation">${escapeHtml(location)}</div></div>
+ </div></article>`;
+}
+function filterCategory(category,button){activeCategory=category;document.querySelectorAll(".category").forEach(x=>x.classList.remove("active"));button.classList.add("active");loadListings();scrollToSection("marketplace");}
+
+async function openListing(id){
+ const listing=listings.find(x=>x.id===id);if(!listing)return;
+ activeListingId=id;activeSellerId=listing.seller_id;
+ const images=normalImages(listing.image_urls),seller=listing.profiles?.display_name||listing.profiles?.username||"ST2K seller";
+ const location=[listing.city,listing.country].filter(Boolean).join(", ");
+ const price=listing.price!==null&&listing.price!==undefined?`${listing.currency||"USD"} ${Number(listing.price).toLocaleString()}`:"Contact seller";
+ const gallery=images.length?`<div class="detailGallery">${images.map((src,i)=>`<img src="${escapeAttr(src)}" alt="${escapeAttr(listing.title)}" data-viewer-index="${i}" data-viewer-listing="${escapeAttr(listing.id)}" onerror="this.style.display='none'">`).join("")}</div>`:"";
+ document.getElementById("listingDetail").innerHTML=`${gallery}<div class="sectionEyebrow">${escapeHtml(listing.listing_type||"Listing")}</div><h2>${escapeHtml(listing.title)}</h2><div class="detailPrice">${escapeHtml(price)}</div><div class="detailMeta">Seller: ${escapeHtml(seller)}</div>${location?`<div class="detailMeta">Location: ${escapeHtml(location)}</div>`:""}<div style="border-top:1px solid #ddd;margin-top:20px;padding-top:20px"><p style="white-space:pre-wrap">${escapeHtml(listing.description||"No description provided.")}</p></div><div class="detailActions">${currentUser&&currentUser.id===listing.seller_id?`<button class="primary" onclick="openEditListing('${listing.id}')">Edit listing</button><button class="secondary" onclick="deleteListing('${listing.id}')">Delete listing</button>`:`<button class="primary" onclick="contactSeller('${listing.seller_id}')">Message seller</button><button class="secondary" onclick="openSellerStore('${listing.seller_id}')">View store</button><button class="secondary" onclick="openReview('${listing.seller_id}','${listing.id}')">Review seller</button><button class="secondary" onclick="openReport('${listing.id}','${listing.seller_id}')">Report</button>`}</div><div id="reviewsArea" style="margin-top:30px">Loading reviews...</div>`;
+ openModal("listingModal");await loadReviews(listing.id,listing.seller_id);
+}
+
+document.addEventListener("click",e=>{const img=e.target.closest("[data-viewer-index]");if(!img)return;const listing=listings.find(x=>x.id===img.dataset.viewerListing);if(!listing)return;viewerImages=normalImages(listing.image_urls);viewerIndex=Number(img.dataset.viewerIndex)||0;showImageViewer();});
+function showImageViewer(){if(!viewerImages.length)return;document.getElementById("viewerImage").src=viewerImages[viewerIndex];document.getElementById("viewerCount").textContent=`${viewerIndex+1} / ${viewerImages.length}`;document.getElementById("imageViewer").classList.add("show");document.body.style.overflow="hidden";}
+function closeImageViewer(){document.getElementById("imageViewer").classList.remove("show");document.body.style.overflow="";}
+function viewerMove(step){if(!viewerImages.length)return;viewerIndex=(viewerIndex+step+viewerImages.length)%viewerImages.length;showImageViewer();}
+document.addEventListener("keydown",e=>{if(!document.getElementById("imageViewer")?.classList.contains("show"))return;if(e.key==="Escape")closeImageViewer();if(e.key==="ArrowLeft")viewerMove(-1);if(e.key==="ArrowRight")viewerMove(1);});
+
+async function loadFavorites(){
+ if(!currentUser)return;
+ const {data,error}=await db.from("favorites").select("listing_id").eq("user_id",currentUser.id);
+ if(!error)favoriteIds=(data||[]).map(x=>x.listing_id);
+}
+async function toggleFavorite(listingId,button){
+ if(!currentUser){openAccount();setStatus("authStatus","Sign in to save listings.","error");return;}
+ if(favoriteIds.includes(listingId)){
+  const {error}=await db.from("favorites").delete().eq("user_id",currentUser.id).eq("listing_id",listingId);if(error){alert(error.message);return;}
+  favoriteIds=favoriteIds.filter(id=>id!==listingId);button.textContent="♡";button.classList.remove("saved");
+ }else{
+  const {error}=await db.from("favorites").insert({user_id:currentUser.id,listing_id:listingId});if(error){alert(error.message);return;}
+  favoriteIds.push(listingId);button.textContent="♥";button.classList.add("saved");
+ }
+}
+async function openFavorites(){
+ if(!currentUser){openAccount();setStatus("authStatus","Sign in to view your saved listings.","error");return;}
+ openModal("favoritesModal");const box=document.getElementById("favoritesContent");box.innerHTML="Loading...";
+ const {data,error}=await db.from("favorites").select(`listing_id,listings(id,title,description,listing_type,category,price,currency,country,city,image_urls)`).eq("user_id",currentUser.id);
+ if(error){box.innerHTML=escapeHtml(error.message);return;}
+ const rows=(data||[]).map(x=>x.listings).filter(Boolean);
+ if(!rows.length){box.innerHTML='<div class="empty"><strong>No saved listings.</strong>Save something you want to find again.</div>';return;}
+ box.innerHTML=rows.map(x=>{const im=normalImages(x.image_urls)[0];return `<div style="display:flex;gap:15px;padding:15px 0;border-bottom:1px solid #ddd;align-items:center;cursor:pointer" onclick="openListing('${x.id}');closeModal('favoritesModal')"><div style="width:80px;height:80px;background:#eee;flex-shrink:0">${im?`<img src="${escapeAttr(im)}" style="width:100%;height:100%;object-fit:cover">`:""}</div><div><strong>${escapeHtml(x.title)}</strong><div style="font-size:12px;color:#777">${escapeHtml(x.listing_type||"Listing")}</div><div style="font-weight:800;margin-top:5px">${x.price!==null?escapeHtml(`${x.currency||"USD"} ${Number(x.price).toLocaleString()}`):"Contact seller"}</div></div></div>`;}).join("");
+}
+
+/* PHOTO PICKER — ROBUST MULTI-IMAGE MOBILE VERSION */
+function addListingImages(input){
+ const preview=document.getElementById("listingImagePreview");
+ if(!preview)return;
+ const files=Array.from(input?.files||[]);
+ if(!files.length)return;
+ 
+ // Android/browser file pickers can return one file per selection.
+ // Append instead of replacing the existing selection.
+ const combined=[...selectedListingFiles,...files];
+ if(combined.length>6){
+  setStatus("listingStatus",`You can add up to 6 pictures. You already have ${selectedListingFiles.length}.`,`error`);
+  input.value="";
+  return;
+ }
+ 
+ for(const file of files){
+  if(!file.type.startsWith("image/")){
+   input.value="";
+   setStatus("listingStatus",`${file.name} is not an image.`,`error`);
+   return;
+  }
+  if(file.size>8*1024*1024){
+   input.value="";
+   setStatus("listingStatus",`${file.name} is larger than 8MB.`,`error`);
+   return;
+  }
+ }
+ 
+ selectedListingFiles=combined;
+ renderListingImagePreviews();
+ input.value="";
+ setStatus("listingStatus",`${selectedListingFiles.length} picture${selectedListingFiles.length===1?"":"s"} ready to publish.`,`info`);
+}
+
+function renderListingImagePreviews(){
+ const preview=document.getElementById("listingImagePreview");
+ if(!preview)return;
+ preview.innerHTML="";
+ selectedListingFiles.forEach((file,index)=>{
+  const reader=new FileReader();
+  reader.onload=e=>{
+   const box=document.createElement("div");
+   box.className="imagePreviewItem";
+   box.innerHTML=`<img src="${e.target.result}" alt="Preview ${index+1}"><span>${index+1}</span>`;
+   preview.appendChild(box);
+  };
+  reader.readAsDataURL(file);
+ });
+}
+
+// Kept for compatibility with older cached pages.
+function previewListingImages(input){
+ selectedListingFiles=[];
+ const preview=document.getElementById("listingImagePreview");
+ if(preview)preview.innerHTML="";
+ addListingImages(input);
+}
+
+async function createListing(){
+ if(!currentUser){closeModal("sellModal");openAccount();setStatus("authStatus","Sign in before creating a listing.","error");return;}
+ const status=document.getElementById("listingStatus");
+ const step=(msg,type="info")=>{console.log("ST2K PUBLISH:",msg);setStatus("listingStatus",msg,type);};
+ try{
+  const title=document.getElementById("listingTitle").value.trim();
+  const listingType=document.getElementById("listingType").value;
+  const category=document.getElementById("listingCategory").value.trim();
+  const description=document.getElementById("listingDescription").value.trim();
+  const priceValue=document.getElementById("listingPrice").value;
+  const currency=document.getElementById("listingCurrency").value;
+  const country=document.getElementById("listingCountry").value.trim();
+  const city=document.getElementById("listingCity").value.trim();
+  const input=document.getElementById("listingImages");
+  const files=selectedListingFiles.length?selectedListingFiles.slice():Array.from(input?.files||[]);
+
+  if(!title||!description||!country||!city){step("STEP 1 FAILED: Title, description, country and city are required.","error");return;}
+  if(!files.length){step("STEP 1 FAILED: ST2K received 0 image files. The preview existed, but the file was not retained.","error");return;}
+  if(files.length>6){step("STEP 1 FAILED: Maximum 6 pictures.","error");return;}
+  for(const file of files){
+   if(!file.type.startsWith("image/")){step(`STEP 1 FAILED: ${file.name} is not an image.`,"error");return;}
+   if(file.size>8*1024*1024){step(`STEP 1 FAILED: ${file.name} is larger than 8MB.`,"error");return;}
+  }
+
+  step(`STEP 1 OK — ${files.length} picture${files.length===1?"":"s"} received. Preparing upload...`);
+
+  const {data:{session},error:sessionError}=await db.auth.getSession();
+  if(sessionError||!session?.user){step(`STEP 2 FAILED — Authentication: ${sessionError?.message||"No active session"}`,"error");return;}
+  if(session.user.id!==currentUser.id){currentUser=session.user;}
+  step("STEP 2 OK — authenticated user confirmed.");
+
+  const {data:profileCheck,error:profileError}=await db.from("profiles").select("id").eq("id",currentUser.id).maybeSingle();
+  if(profileError){step(`STEP 3 FAILED — profiles check: ${profileError.message}`,"error");return;}
+  if(!profileCheck){
+   const username=currentUser.user_metadata?.username||currentUser.email?.split("@")[0]||("user"+Date.now());
+   const displayName=currentUser.user_metadata?.display_name||username;
+   const {error:createProfileError}=await db.from("profiles").insert({id:currentUser.id,username,display_name:displayName});
+   if(createProfileError){step(`STEP 3 FAILED — profile creation: ${createProfileError.message}`,"error");return;}
+  }
+  step("STEP 3 OK — seller profile ready.");
+
+  const imageUrls=[];
+  const uploadedPaths=[];
+
+  // Mobile-safe Storage upload. Some Android browsers/WebViews are unreliable
+  // when a File object is passed directly to multipart upload. Convert the
+  // image to an ArrayBuffer first, then fall back to the original File if needed.
+  const bucket=db.storage.from("listing-images");
+
+  async function uploadListingImage(file,path,mime,session){
+   let buffer=null;
+   try{
+    if(file.arrayBuffer) buffer=await file.arrayBuffer();
+   }catch(e){
+    console.warn("ST2K arrayBuffer conversion failed",e);
+   }
+
+   if(buffer){
+    const result=await bucket.upload(path,buffer,{
+     cacheControl:"3600",
+     upsert:false,
+     contentType:mime
+    });
+    if(!result.error)return result;
+    console.warn("ST2K ArrayBuffer upload failed; retrying with File",result.error);
+   }
+
+   return await bucket.upload(path,file,{
+    cacheControl:"3600",
+    upsert:false,
+    contentType:mime
+   });
+  }
+
+  function storageErrorText(error){
+   if(!error)return "Unknown Storage error";
+   return [
+    error.message,
+    error.name,
+    error.statusCode,
+    error.status,
+    error.code
+   ].filter(v=>v!==undefined&&v!==null&&String(v).trim()!=="").join(" | ");
+  }
+
+  for(let i=0;i<files.length;i++){
+   const file=files[i];
+   const mime=(file.type||"image/jpeg").toLowerCase();
+   const ext=(file.name.split(".").pop()||mime.split("/")[1]||"jpg").toLowerCase().replace(/[^a-z0-9]/g,"")||"jpg";
+   const randomPart=(window.crypto&&crypto.randomUUID)?crypto.randomUUID():`${Date.now()}-${Math.random().toString(36).slice(2)}`;
+   const path=`${currentUser.id}/${Date.now()}-${randomPart}.${ext}`;
+   step(`STEP 4 — uploading picture ${i+1} of ${files.length}...`);
+
+   try{
+    const {data:uploadData,error:uploadError}=await uploadListingImage(file,path,mime,session);
+    if(uploadError){
+     console.error("ST2K STORAGE ERROR",{uploadError,file:file.name,size:file.size,type:file.type,path});
+     const detail=storageErrorText(uploadError);
+     step(`STEP 4 FAILED — picture ${i+1}: ${detail||"Storage upload failed"}. Check the listing-images INSERT policy and try again.`,"error");
+     return;
+    }
+    if(!uploadData?.path){
+     step(`STEP 4 FAILED — picture ${i+1}: Storage returned no path.`,"error");
+     return;
+    }
+    uploadedPaths.push(uploadData.path);
+
+    const {data:urlData}=bucket.getPublicUrl(uploadData.path);
+    const publicUrl=urlData?.publicUrl||"";
+    if(!publicUrl){
+     step(`STEP 5 FAILED — no public URL generated for picture ${i+1}.`,"error");
+     return;
+    }
+    imageUrls.push(publicUrl);
+    console.log("ST2K IMAGE UPLOADED",{index:i+1,path:uploadData.path,publicUrl});
+    step(`STEP 5 OK — picture ${i+1} uploaded and URL generated.`);
+   }catch(uploadException){
+    console.error("ST2K STORAGE EXCEPTION",uploadException);
+    step(`STEP 4 FAILED — picture ${i+1}: ${uploadException?.message||String(uploadException)}.`,"error");
+    return;
+   }
+  }
+
+  if(!imageUrls.length){step("STEP 5 FAILED — zero image URLs were generated.","error");return;}
+  step("STEP 6 — saving listing and image URLs to database...");
+
+  const payload={seller_id:currentUser.id,title,description,listing_type:listingType,category:category||null,price:priceValue?Number(priceValue):null,currency,country,city,image_urls:imageUrls,status:"active"};
+  console.log("ST2K LISTING PAYLOAD",payload);
+  const {data:listingData,error:listingError}=await db.from("listings").insert(payload).select("id,title,image_urls").single();
+  if(listingError){
+   console.error("ST2K DATABASE ERROR",listingError,payload);
+   step(`STEP 6 FAILED — listing database save: ${listingError.message} (code: ${listingError.code||"unknown"})`,"error");
+   return;
+  }
+  console.log("ST2K DATABASE RESULT",listingData);
+  const savedImages=normalImages(listingData?.image_urls);
+  if(!savedImages.length){step("STEP 7 FAILED — listing was created, but image_urls came back empty. The database column/policy is the problem.","error");return;}
+
+  step(`SUCCESS — ${savedImages.length} picture${savedImages.length===1?"":"s"} uploaded AND saved to this listing.` ,"success");
+  await sendPushSignal("listing",{listing_id:listingData.id});
+  ["listingTitle","listingCategory","listingDescription","listingPrice","listingCountry","listingCity"].forEach(id=>document.getElementById(id).value="");
+  if(input)input.value="";
+  selectedListingFiles=[];
+  const preview=document.getElementById("listingImagePreview");
+  if(preview)preview.innerHTML="";
+  await loadListings();
+  setTimeout(()=>closeModal("sellModal"),1400);
+ }catch(err){
+  console.error("ST2K UNEXPECTED PUBLISH ERROR",err);
+  step(`UNEXPECTED ERROR — ${err?.message||String(err)}`,"error");
+ }
+}
+async function contactSeller(sellerId){
+ if(!currentUser){closeModal("listingModal");openAccount();setStatus("authStatus","Sign in to message sellers.","error");return;}
+ if(sellerId===currentUser.id){alert("This is your own listing.");return;}
+ activeSellerId=sellerId;const seller=await loadSellerProfile(sellerId);
+ document.getElementById("messageSellerName").textContent=seller?`Message ${seller.display_name||seller.username||"seller"}`:"Send a message to this seller.";
+ document.getElementById("messageBody").value="";setStatus("messageStatus","");closeModal("listingModal");openModal("messageModal");
+}
+async function sendMessage(){
+ if(!currentUser||!activeSellerId)return;const body=document.getElementById("messageBody").value.trim();if(!body){setStatus("messageStatus","Write a message first.","error");return;}
+ const {data:sentMessage,error}=await db.from("messages").insert({sender_id:currentUser.id,receiver_id:activeSellerId,listing_id:activeListingId||null,body}).select("id").single();
+ if(error){setStatus("messageStatus",error.message,"error");return;}document.getElementById("messageBody").value="";setStatus("messageStatus","Message sent. Open Inbox to continue the conversation.","success");await sendPushSignal("message",{message_id:sentMessage?.id||null});await updateMessageBadge();
+}
+function formatMessageTime(value){
+ const d=new Date(value);if(Number.isNaN(d.getTime()))return "";
+ return d.toLocaleString(undefined,{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"});
+}
+function profileMap(profiles){const map={};(profiles||[]).forEach(p=>map[p.id]=p);return map;}
+async function fetchMyMessages(){
+ if(!currentUser)return {messages:[],profiles:{}};
+ const {data,error}=await db.from("messages").select("id,sender_id,receiver_id,listing_id,body,created_at,read_at").or(`sender_id.eq.${currentUser.id},receiver_id.eq.${currentUser.id}`).order("created_at",{ascending:true});
+ if(error)throw error;
+ const rows=data||[];
+ const ids=[...new Set(rows.map(m=>m.sender_id===currentUser.id?m.receiver_id:m.sender_id).filter(Boolean))];
+ let profiles=[];
+ if(ids.length){const r=await db.from("profiles").select("id,username,display_name").in("id",ids);if(r.error)throw r.error;profiles=r.data||[];}
+ return {messages:rows,profiles:profileMap(profiles)};
+}
+async function updateMessageBadge(){
+ const badge=document.getElementById("inboxBadge");if(!badge)return;
+ if(!currentUser){badge.textContent="";badge.style.display="none";return;}
+ const {data,error}=await db.from("messages").select("id").eq("receiver_id",currentUser.id).is("read_at",null);
+ if(error){badge.textContent="";badge.style.display="none";return;}
+ const n=(data||[]).length;badge.textContent=n>99?"99+":String(n);badge.style.display=n?"inline-flex":"none";
+}function openInbox(){
+ if(!currentUser){openAccount();setStatus("authStatus","Sign in to open your inbox.","error");return;}
+ openModal("inboxModal");showInboxList();loadInbox();
+}
+function showInboxList(){document.getElementById("inboxView").classList.remove("hidden");document.getElementById("threadView").classList.add("hidden");}
+async function loadInbox(){
+ if(!currentUser)return;
+ showInboxList();
+ const box=document.getElementById("inboxContent");box.innerHTML='<div class="status info">Loading conversations...</div>';
+ try{
+  const {messages,profiles}=await fetchMyMessages();
+  if(!messages.length){box.innerHTML='<div class="emptyInbox"><strong>Your inbox is empty.</strong><div style="margin-top:6px;font-size:12px">Message a seller from any listing to start a conversation.</div></div>';return;}
+  const groups={};
+  messages.forEach(m=>{
+   const partner=m.sender_id===currentUser.id?m.receiver_id:m.sender_id;
+   if(!partner)return;
+   if(!groups[partner])groups[partner]={partner,listingId:m.listing_id,last:m,messages:[]};
+   groups[partner].messages.push(m);
+   if(new Date(m.created_at)>new Date(groups[partner].last.created_at))groups[partner].last=m;
+   if(m.listing_id)groups[partner].listingId=m.listing_id;
+  });
+  const rows=Object.values(groups).sort((a,b)=>new Date(b.last.created_at)-new Date(a.last.created_at));
+  box.innerHTML='<div class="messageList">'+rows.map(g=>{
+   const p=profiles[g.partner]||{};const name=p.display_name||p.username||"ST2K user";const initial=(name.trim().charAt(0)||"S").toUpperCase();
+   const prefix=g.last.sender_id===currentUser.id?"You: ":"";
+   return `<div class="conversation" onclick="openThread('${g.partner}','${g.listingId||""}')"><div class="conversationAvatar">${escapeHtml(initial)}</div><div><div class="conversationName">${escapeHtml(name)}</div><div class="conversationPreview">${escapeHtml(prefix+(g.last.body||""))}</div>${g.listingId?`<div class="conversationListing">Listing conversation</div>`:""}</div><div class="conversationMeta">${escapeHtml(formatMessageTime(g.last.created_at))}<br>${g.messages.length} message${g.messages.length===1?"":"s"}</div><button class="conversationDelete" title="Delete conversation" aria-label="Delete conversation" onclick="event.stopPropagation();deleteConversation('${g.partner}','${g.listingId||""}')">×</button></div>`;
+  }).join("")+'</div>';
+ }catch(err){console.error("ST2K INBOX ERROR",err);box.innerHTML=`<div class="status error">Could not load your inbox: ${escapeHtml(err?.message||String(err))}</div>`;}
+}
+async function deleteConversation(partnerId,listingId){
+ if(!currentUser)return;
+ const ok=confirm("Delete this conversation from your ST2K inbox? This removes your messages from your inbox. The other person’s copy is not deleted.");
+ if(!ok)return;
+ setStatus("inboxStatus","Deleting conversation...","info");
+ try{
+  let q=db.from("messages").delete().or(`and(sender_id.eq.${currentUser.id},receiver_id.eq.${partnerId}),and(sender_id.eq.${partnerId},receiver_id.eq.${currentUser.id})`);
+  if(listingId)q=q.eq("listing_id",listingId);
+  const {error}=await q;
+  if(error)throw error;
+  setStatus("inboxStatus","Conversation deleted.","success");
+  await updateMessageBadge();
+  await loadInbox();
+ }catch(err){console.error("ST2K DELETE CONVERSATION ERROR",err);setStatus("inboxStatus","Could not delete conversation: "+(err?.message||String(err)),"error");}
+}
+
+async function openThread(partnerId,listingId){
+ if(!currentUser)return;
+ document.getElementById("inboxView").classList.add("hidden");document.getElementById("threadView").classList.remove("hidden");
+ const box=document.getElementById("threadContent");box.innerHTML='<div class="status info">Loading conversation...</div>';
+ try{
+  const {messages,profiles}=await fetchMyMessages();
+  const rows=messages.filter(m=>(m.sender_id===currentUser.id&&m.receiver_id===partnerId)||(m.sender_id===partnerId&&m.receiver_id===currentUser.id));
+  const unreadIds=rows.filter(m=>m.receiver_id===currentUser.id&&!m.read_at).map(m=>m.id);
+  if(unreadIds.length)await db.from("messages").update({read_at:new Date().toISOString()}).in("id",unreadIds);
+  const p=profiles[partnerId]||{};const name=p.display_name||p.username||"ST2K user";const initial=(name.trim().charAt(0)||"S").toUpperCase();
+  box.innerHTML=`<div class="threadHeader"><button class="threadBack" onclick="loadInbox()">Back</button><div class="threadIdentity"><div class="threadAvatar">${escapeHtml(initial)}</div><div><div class="threadName">${escapeHtml(name)}</div>${p.username?`<div class="threadListing">@${escapeHtml(p.username)}</div>`:""}</div></div></div><div class="threadMessages" id="threadMessages">${rows.length?rows.map(m=>`<div class="bubble ${m.sender_id===currentUser.id?"mine":""}">${escapeHtml(m.body||"")}<span class="bubbleTime">${escapeHtml(formatMessageTime(m.created_at))}</span></div>`).join(""):'<div class="status info">No messages in this conversation yet.</div>'}</div><div id="threadStatus" class="status"></div><div class="threadComposer"><textarea id="threadBody" rows="2" placeholder="Write a reply..."></textarea><button class="primary" onclick="sendThreadMessage('${partnerId}','${listingId||""}')">Send</button></div>`;
+  const scroll=document.getElementById("threadMessages");if(scroll)scroll.scrollTop=scroll.scrollHeight;
+ }catch(err){console.error("ST2K THREAD ERROR",err);box.innerHTML=`<div class="status error">Could not load conversation: ${escapeHtml(err?.message||String(err))}</div>`;}
+}
+async function sendThreadMessage(receiverId,listingId){
+ if(!currentUser)return;
+ const input=document.getElementById("threadBody");const body=input?.value.trim();if(!body){setStatus("threadStatus","Write a reply first.","error");return;}
+ const {error}=await db.from("messages").insert({sender_id:currentUser.id,receiver_id:receiverId,listing_id:listingId||null,body});
+ if(error){setStatus("threadStatus",error.message,"error");return;}
+ const sent={data:sentMessage}=await db.from("messages").select("id").eq("sender_id",currentUser.id).eq("receiver_id",receiverId).eq("body",body).order("created_at",{ascending:false}).limit(1).maybeSingle();
+ await sendPushSignal("message",{message_id:sentMessage?.id||null});
+ input.value="";setStatus("threadStatus","Message sent.","success");await updateMessageBadge();await openThread(receiverId,listingId);
+}
+async function openMyListings(){
+ if(!currentUser){openAccount();return;}
+ closeModal("accountModal");openModal("myListingsModal");
+ const box=document.getElementById("myListingsContent");box.innerHTML='<div class="status info">Loading your listings...</div>';
+ const {data,error}=await db.from("listings").select("id,title,description,listing_type,category,price,currency,country,city,image_urls,status,created_at,updated_at").eq("seller_id",currentUser.id).order("created_at",{ascending:false});
+ if(error){box.innerHTML=`<div class="status error">${escapeHtml(error.message)}</div>`;return;}
+ const rows=data||[];
+ if(!rows.length){box.innerHTML='<div class="empty"><strong>You have no listings yet.</strong><br><br><button class="primary" onclick="closeModal(\'myListingsModal\');openSell()">Create your first listing</button></div>';return;}
+ box.innerHTML=rows.map(renderManagedListing).join("");
+}
+function renderManagedListing(item){
+ const image=normalImages(item.image_urls)[0]||null;
+ const price=item.price!==null&&item.price!==undefined?`${item.currency||"USD"} ${Number(item.price).toLocaleString()}`:"Contact seller";
+ const status=item.status||"active";
+ return `<div style="display:flex;gap:16px;align-items:center;padding:16px 0;border-bottom:1px solid #ddd;flex-wrap:wrap"><div style="width:90px;height:70px;background:#f4f4f4;overflow:hidden;flex:0 0 90px">${image?`<img src="${escapeAttr(image)}" style="width:100%;height:100%;object-fit:cover" alt="">`:`<div style="height:100%;display:grid;place-items:center;font-size:11px">ST2K</div>`}</div><div style="flex:1;min-width:180px"><strong>${escapeHtml(item.title)}</strong><div style="font-size:12px;color:#777;margin-top:5px">${escapeHtml(item.listing_type||"Listing")} · ${escapeHtml(price)}</div><div style="font-size:11px;margin-top:5px;text-transform:uppercase;letter-spacing:.08em">Status: ${escapeHtml(status)}</div></div><div style="display:flex;gap:7px;flex-wrap:wrap"><button class="secondary" onclick="openListing('${item.id}');closeModal('myListingsModal')">View</button><button class="secondary" onclick="openEditListing('${item.id}')">Edit</button>${status==="active"?`<button class="secondary" onclick="setListingStatus('${item.id}','paused')">Pause</button><button class="secondary" onclick="setListingStatus('${item.id}','sold')">Mark sold</button>`:`<button class="secondary" onclick="setListingStatus('${item.id}','active')">Activate</button>`}<button class="secondary" onclick="deleteListing('${item.id}')">Delete</button></div></div>`;
+}
+async function openEditListing(id){
+ if(!currentUser)return;
+ const {data,error}=await db.from("listings").select("id,seller_id,title,description,listing_type,category,price,currency,country,city").eq("id",id).eq("seller_id",currentUser.id).single();
+ if(error){alert(error.message);return;}
+ document.getElementById("editListingId").value=data.id;document.getElementById("editListingTitle").value=data.title||"";document.getElementById("editListingType").value=data.listing_type||"Product";document.getElementById("editListingCategory").value=data.category||"";document.getElementById("editListingDescription").value=data.description||"";document.getElementById("editListingPrice").value=data.price??"";document.getElementById("editListingCurrency").value=data.currency||"USD";document.getElementById("editListingCountry").value=data.country||"";document.getElementById("editListingCity").value=data.city||"";setStatus("editListingStatus","");openModal("editListingModal");
+}
+async function saveListingEdit(){
+ if(!currentUser)return;
+ const id=document.getElementById("editListingId").value;
+ const title=document.getElementById("editListingTitle").value.trim(),description=document.getElementById("editListingDescription").value.trim(),country=document.getElementById("editListingCountry").value.trim(),city=document.getElementById("editListingCity").value.trim();
+ if(!title||!description||!country||!city){setStatus("editListingStatus","Title, description, country and city are required.","error");return;}
+ const {error}=await db.from("listings").update({title,description,listing_type:document.getElementById("editListingType").value,category:document.getElementById("editListingCategory").value.trim()||null,price:document.getElementById("editListingPrice").value?Number(document.getElementById("editListingPrice").value):null,currency:document.getElementById("editListingCurrency").value,country,city,updated_at:new Date().toISOString()}).eq("id",id).eq("seller_id",currentUser.id);
+ if(error){setStatus("editListingStatus",error.message,"error");return;}
+ setStatus("editListingStatus","Listing updated.","success");await loadListings();await openMyListings();setTimeout(()=>closeModal("editListingModal"),700);
+}
+async function setListingStatus(id,status){
+ if(!currentUser)return;
+ const {error}=await db.from("listings").update({status,updated_at:new Date().toISOString()}).eq("id",id).eq("seller_id",currentUser.id);
+ if(error){alert(error.message);return;}await loadListings();await openMyListings();
+}
+function storagePathFromPublicUrl(url){
+ if(!url)return null;
+ const marker="/storage/v1/object/public/listing-images/";const i=url.indexOf(marker);return i>=0?decodeURIComponent(url.slice(i+marker.length)):null;
+}
+async function deleteListing(id){
+ if(!currentUser)return;
+ const {data:item,error:readError}=await db.from("listings").select("id,title,seller_id,image_urls").eq("id",id).eq("seller_id",currentUser.id).single();
+ if(readError){alert(readError.message);return;}
+ if(!confirm(`Delete "${item.title}" permanently? This cannot be undone.`))return;
+ const paths=normalImages(item.image_urls).map(storagePathFromPublicUrl).filter(Boolean);
+ if(paths.length){const {error:storageError}=await db.storage.from("listing-images").remove(paths);if(storageError){alert("Images could not be removed: "+storageError.message);return;}}
+ const {error}=await db.from("listings").delete().eq("id",id).eq("seller_id",currentUser.id);
+ if(error){alert(error.message);return;}
+ if(activeListingId===id)closeModal("listingModal");
+ await loadListings();
+ if(document.getElementById("myListingsModal").classList.contains("show"))await openMyListings();
+}
+async function loadReviews(listingId,sellerId){
+ const area=document.getElementById("reviewsArea");
+ if(!area)return;
+ area.innerHTML='<div class="status info">Loading reviews...</div>';
+
+ // HARD FIX: this query deliberately does NOT request reviewer_id, seller_id,
+ // profiles, or any PostgREST relationship. It only reads plain review fields.
+ const {data,error}=await db
+  .from("reviews")
+  .select("id,rating,body,created_at")
+  .eq("listing_id",listingId)
+  .order("created_at",{ascending:false});
+
+ if(error){
+  console.error("ST2K REVIEWS SELECT ERROR",error);
+  area.innerHTML=`<div class="status error">Reviews could not be loaded: ${escapeHtml(error.message)}</div>`;
+  return;
+ }
+
+ if(!data?.length){
+  area.innerHTML='<div style="border-top:1px solid #ddd;padding-top:20px"><strong>No reviews yet.</strong><div style="font-size:12px;color:#777;margin-top:5px">Be the first to review this seller.</div></div>';
+  return;
+ }
+
+ area.innerHTML=`<div style="border-top:1px solid #ddd;padding-top:20px"><div class="sectionEyebrow">Reviews</div>${data.map(r=>{
+  const n=Math.max(0,Math.min(5,Number(r.rating)||0));
+  return `<div class="review"><div class="reviewRating">${"★".repeat(n)}${"☆".repeat(5-n)}</div><div class="reviewAuthor">ST2K buyer</div><div class="reviewBody">${escapeHtml(r.body||"")}</div></div>`;
+ }).join("")}</div>`;
+}
+function openReview(sellerId,listingId){
+ if(!currentUser){closeModal("listingModal");openAccount();setStatus("authStatus","Sign in to leave a review.","error");return;}
+ activeSellerId=sellerId;activeListingId=listingId;document.getElementById("reviewBody").value="";document.getElementById("reviewRating").value="5";setStatus("reviewStatus","");closeModal("listingModal");openModal("reviewModal");
+}
+async function submitReview(){
+ if(!currentUser||!activeSellerId)return;const rating=Number(document.getElementById("reviewRating").value),body=document.getElementById("reviewBody").value.trim();
+ const {error}=await db.from("reviews").insert({reviewer_id:currentUser.id,seller_id:activeSellerId,listing_id:activeListingId||null,rating,body});
+ if(error){setStatus("reviewStatus",error.message,"error");return;}setStatus("reviewStatus","Review published.","success");document.getElementById("reviewBody").value="";
+}
+async function openPromotion(){
+ if(!currentUser){openAccount();setStatus("authStatus","Sign in to promote a listing.","error");return;}
+ openModal("promotionModal");
+ const select=document.getElementById("promotionListing");select.innerHTML='<option>Loading your listings...</option>';
+ const {data,error}=await db.from("listings").select("id,title,status").eq("seller_id",currentUser.id).order("created_at",{ascending:false});
+ if(error){select.innerHTML='<option>Could not load listings</option>';setStatus("promotionStatus",error.message,"error");return;}
+ const rows=(data||[]).filter(x=>x.status!=="deleted");
+ if(!rows.length){select.innerHTML='<option>No listings yet</option>';setStatus("promotionStatus","Create a listing first.","info");return;}
+ select.innerHTML=rows.map(x=>`<option value="${escapeAttr(x.id)}">${escapeHtml(x.title)}${x.status==="active"?"":" · "+escapeHtml(x.status)}</option>`).join("");
+ setStatus("promotionStatus","Choose a promotion, pay by EcoCash, then submit your reference.","info");
+}
+let selectedPromotion=null;
+function choosePromotion(plan,amount){selectedPromotion={plan,amount};setStatus("promotionStatus",`${plan.replaceAll("_"," ")} selected · ${amount===3.5?"$3.50":"$"+amount}. Send payment to EcoCash 078 841 4541, then enter your reference below.`,"success");}
+async function submitPromotionRequest(){
+ if(!currentUser)return;
+ const listingId=document.getElementById("promotionListing").value;const ref=document.getElementById("promotionReference").value.trim();
+ if(!selectedPromotion){setStatus("promotionStatus","Choose a promotion first.","error");return;}
+ if(!listingId||!ref){setStatus("promotionStatus","Select a listing and enter your EcoCash reference.","error");return;}
+ const {error}=await db.from("listing_promotions").insert({listing_id:listingId,seller_id:currentUser.id,plan:selectedPromotion.plan,amount:selectedPromotion.amount,payment_method:"EcoCash",payment_reference:ref,status:"pending"});
+ if(error){setStatus("promotionStatus",error.message,"error");return;}
+ setStatus("promotionStatus","Request submitted. ST2K will verify the EcoCash payment before activating the promotion.","success");
+ document.getElementById("promotionReference").value="";selectedPromotion=null;
+}
+
+function openReport(listingId,sellerId){
+ if(!currentUser){closeModal("listingModal");openAccount();setStatus("authStatus","Sign in to report a listing.","error");return;}
+ activeListingId=listingId;activeSellerId=sellerId;document.getElementById("reportDetails").value="";setStatus("reportStatus","");closeModal("listingModal");openModal("reportModal");
+}
+async function submitReport(){
+ if(!currentUser)return;const reason=document.getElementById("reportReason").value,details=document.getElementById("reportDetails").value.trim();
+ const {error}=await db.from("reports").insert({reporter_id:currentUser.id,listing_id:activeListingId||null,reported_user_id:activeSellerId||null,reason,details});
+ if(error){setStatus("reportStatus",error.message,"error");return;}setStatus("reportStatus","Report submitted.","success");document.getElementById("reportDetails").value="";
+}
+
+function setStatus(id,message,type=""){const el=document.getElementById(id);if(!el)return;el.textContent=message;el.className="status"+(type?" "+type:"");}
+function escapeHtml(value){return String(value??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;")}
+function escapeAttr(value){return escapeHtml(value)}
+function openModal(id){document.getElementById(id).classList.add("show")}
+function closeModal(id){document.getElementById(id).classList.remove("show")}
+document.querySelectorAll(".modal").forEach(modal=>modal.addEventListener("click",e=>{if(e.target===modal)modal.classList.remove("show")}));
+function openAccount(){openModal("accountModal");updateAccountUI()}
+function openSell(){if(!currentUser){openAccount();setStatus("authStatus","Sign in to create a listing.","error");return}openModal("sellModal")}
+function scrollToSection(id){const el=document.getElementById(id);if(el)el.scrollIntoView({behavior:"smooth"})}
+document.addEventListener("keydown",e=>{if(e.key==="Escape")document.querySelectorAll(".modal").forEach(x=>x.classList.remove("show"))});
+</script>
+</body>
+</html>
